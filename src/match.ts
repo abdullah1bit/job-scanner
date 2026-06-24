@@ -5,8 +5,8 @@ import { STOPWORDS } from './constants/stopwords';
 /**
  * Extract top keywords from a job description.
  *
- * Uses position-weighted frequency (title gets 3x, first paragraph 2x, body 1x)
- * and importance multipliers (regex for "required", "must have" → 2x).
+ * Uses position-weighted frequency (title gets 3x, first paragraph 2x, body 1x).
+ * Stopwords are filtered out. Returns top N keywords by weight.
  *
  * @param text - The job description text
  * @param options - Optional max keywords and language
@@ -49,22 +49,52 @@ export function extractKeywords(text: string, options: KeywordOptions = {}): Key
 }
 
 /**
- * Match a resume against a job description.
+ * Match a resume against a job description, returning a match score and
+ * missing keywords.
  *
- * Returns a deterministic match score based on keyword overlap.
- * When `semanticConcepts` is provided (e.g. from AI extraction), those
- * concepts are merged with the deterministic keywords.
+ * **Deterministic by default.** The library itself does NOT call any LLM.
+ * To add semantic understanding, pass an `aiConceptExtractor` callback in
+ * `options` (or pre-compute `semanticConcepts`). The callback is BYO — the
+ * library never sees your API key.
  *
  * @param resumeText - The resume text
  * @param jobDescription - The job description text
- * @param options - Optional configuration including semantic concepts
- * @returns MatchResult with score, band, matched/missing keywords, and fixes
+ * @param options - Optional configuration including AI concept extractor
+ * @returns Promise<MatchResult> with score, band, matched/missing keywords, fixes
+ *
+ * @example Basic (deterministic only)
+ * ```ts
+ * import { matchResumeToJD } from '@resumepolish/ats-scorer';
+ * const result = await matchResumeToJD(resumeText, jd);
+ * console.log(result.score); // 45
+ * ```
+ *
+ * @example With semantic AI extraction (BYO LLM)
+ * ```ts
+ * const result = await matchResumeToJD(resumeText, jd, {
+ *   aiConceptExtractor: async (jd) => {
+ *     const res = await openai.chat.completions.create({
+ *       model: 'gpt-4o-mini',
+ *       messages: [{ role: 'user', content: `Extract 5 key concepts from: ${jd}` }],
+ *     });
+ *     return JSON.parse(res.choices[0].message.content);
+ *   }
+ * });
+ * ```
+ *
+ * @example With pre-computed concepts (recommended for production)
+ * ```ts
+ * const concepts = await callMyLLM(jd);
+ * const result = await matchResumeToJD(resumeText, jd, {
+ *   semanticConcepts: concepts,
+ * });
+ * ```
  */
-export function matchResumeToJD(
+export async function matchResumeToJD(
   resumeText: string,
   jobDescription: string,
   options: MatchOptions = {},
-): MatchResult {
+): Promise<MatchResult> {
   if (typeof resumeText !== 'string' || typeof jobDescription !== 'string') {
     throw new Error('Both resume and JD must be strings');
   }
@@ -87,12 +117,20 @@ export function matchResumeToJD(
 
   const keywords = extractKeywords(jobDescription, { maxKeywords: 20 });
 
-  // Merge AI-extracted semantic concepts with deterministic keywords.
-  // AI concepts get boosted weight (5) and are checked against the resume
-  // with the same substring match. Full synonym + categorization logic
-  // is being implemented; for now this adds bonus concepts to the match.
-  const semanticKeywords = (options.semanticConcepts ?? []).map((c) => ({
-    keyword: c.toLowerCase(),
+  // Resolve semantic concepts from either pre-computed value or the
+  // BYO-LLM hook. If both are provided, pre-computed wins (it's a cache hit).
+  let semanticConcepts: string[] = options.semanticConcepts ?? [];
+  if (semanticConcepts.length === 0 && options.aiConceptExtractor) {
+    try {
+      semanticConcepts = await options.aiConceptExtractor(jobDescription);
+    } catch {
+      // AI extraction failed — fall back to deterministic only
+      semanticConcepts = [];
+    }
+  }
+
+  const semanticKeywords = semanticConcepts.map((c) => ({
+    keyword: c.toLowerCase().trim(),
     weight: 5,
     category: 'other' as const,
   }));
@@ -100,9 +138,11 @@ export function matchResumeToJD(
 
   const resumeLower = resumeText.toLowerCase();
 
-  const matchedKeywords = allKeywords.filter((k) => resumeLower.includes(k.keyword));
+  const matchedKeywords = allKeywords.filter((k) =>
+    resumeLower.includes(k.keyword.toLowerCase()),
+  );
   const missingKeywords = allKeywords
-    .filter((k) => !resumeLower.includes(k.keyword))
+    .filter((k) => !resumeLower.includes(k.keyword.toLowerCase()))
     .map((k) => ({
       ...k,
       importance: (k.weight >= 3 ? 'required' : 'preferred') as 'required' | 'preferred',
@@ -112,6 +152,7 @@ export function matchResumeToJD(
   const totalWeight = allKeywords.reduce((sum, k) => sum + k.weight, 0);
   const score = totalWeight > 0 ? Math.round((matchedWeight / totalWeight) * 100) : 0;
 
+  const topGap = missingKeywords[0]?.keyword ?? 'none';
   return {
     score,
     band: computeMatchBand(score),
@@ -128,7 +169,7 @@ export function matchResumeToJD(
       score >= 70
         ? 'Your resume covers the key requirements well.'
         : score >= 40
-          ? `Your resume partially matches. Top gap: "${missingKeywords[0]?.keyword ?? 'none'}".`
+          ? `Your resume partially matches. Top gap: "${topGap}".`
           : 'Your resume needs significant tailoring to match this job.',
   };
 }

@@ -78,7 +78,28 @@ export interface MatchResult {
 export interface MatchOptions {
   targetRole?: string;
   language?: string;
+  /** Pre-computed semantic concepts (e.g. from a prior AI call) */
   semanticConcepts?: string[];
+  /**
+   * Optional async hook for semantic concept extraction. If provided, the
+   * library will call this with the job description and merge the result
+   * with the deterministic keyword match. The hook is BYO-LLM — the
+   * library does NOT call any LLM itself.
+   *
+   * Typical implementation: call your LLM provider with the JD, return
+   * 5 most important concepts as a string array.
+   *
+   * @example
+   * ```ts
+   * matchResumeToJD(resume, jd, {
+   *   aiConceptExtractor: async (jd) => {
+   *     const res = await openai.chat.completions.create({...});
+   *     return JSON.parse(res.choices[0].message.content);
+   *   }
+   * });
+   * ```
+   */
+  aiConceptExtractor?: (jobDescription: string) => Promise<string[]>;
 }
 
 // ---------------------------------------------------------------------------

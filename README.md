@@ -30,12 +30,45 @@ Paste a resume + a job description, get a match score showing which keywords/con
 import { scoreResume, matchResumeToJD } from '@resumepolish/ats-scorer';
 
 const atsResult = scoreResume(resumeText);
-const matchResult = matchResumeToJD(resumeText, jobDescription);
+const matchResult = await matchResumeToJD(resumeText, jobDescription);
 
 console.log(atsResult.overall);     // 72
 console.log(matchResult.score);     // 45
 console.log(matchResult.missingKeywords); // ['kubernetes', 'postgresql', ...]
 ```
+
+## Optional AI hook (BYO LLM)
+
+The library is **deterministic by default** — no LLM calls, no API keys, works offline. For semantic understanding that handles synonyms and concepts beyond keyword overlap, you can plug in your own LLM:
+
+```typescript
+import OpenAI from 'openai';
+import { matchResumeToJD } from '@resumepolish/ats-scorer';
+
+const openai = new OpenAI();
+
+// Option 1: BYO-LLM hook (library calls your function)
+const result = await matchResumeToJD(resumeText, jd, {
+  aiConceptExtractor: async (jdText) => {
+    const res = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{
+        role: 'user',
+        content: `Extract the 5 most important skills or concepts from this job description. Return as JSON array of strings.\n\n${jdText}`,
+      }],
+    });
+    return JSON.parse(res.choices[0].message.content);
+  },
+});
+
+// Option 2: pre-computed concepts (recommended for production)
+const concepts = await callMyLLM(jd);
+const result = await matchResumeToJD(resumeText, jd, {
+  semanticConcepts: concepts,
+});
+```
+
+**The library never sees your API key.** The hook is BYO — you provide the LLM implementation, the library merges the concepts with the deterministic match. If the hook throws, the library falls back to deterministic-only.
 
 ## Quick start
 
@@ -44,14 +77,15 @@ npm install @resumepolish/ats-scorer
 ```
 
 ```typescript
-import { scoreResume } from '@resumepolish/ats-scorer';
+import { scoreResume, matchResumeToJD } from '@resumepolish/ats-scorer';
 
-const result = scoreResume(resumeText);
+const ats = scoreResume(resumeText);
+const match = await matchResumeToJD(resumeText, jdText);
 
-console.log(result.overall);      // 72
-console.log(result.band);         // 'minor_fixes'
-console.log(result.dimensions.actionVerbs);
-// { score: 50, status: 'needs_work', label: 'Action verbs', value: '32% of bullets', ... }
+console.log(ats.overall);       // 72
+console.log(ats.band);          // 'minor_fixes'
+console.log(match.score);        // 45
+console.log(match.missingKeywords); // ['kubernetes', 'postgresql', ...]
 ```
 
 **Zero runtime dependencies.** Runs in ~10ms. Works in Node 18+, browsers, and edge runtimes.

@@ -43,9 +43,11 @@ interface AtsScore {
 - `Error` if `text` is not a string
 - `Error` if `text` is shorter than 50 characters
 
-## `matchResumeToJD(resumeText, jobDescription, options?)`
+## `matchResumeToJD(resumeText, jobDescription, options?)` — async
 
 Matches a resume against a job description, returning a match score and missing keywords.
+
+**Returns:** `Promise<MatchResult>`
 
 ### Parameters
 
@@ -55,7 +57,30 @@ Matches a resume against a job description, returning a match score and missing 
 | `jobDescription` | `string` | required | The job description text |
 | `options.targetRole` | `string` | — | Optional target role (currently unused but reserved) |
 | `options.language` | `string` | `'en'` | Language code |
-| `options.semanticConcepts` | `string[]` | — | AI-extracted concepts to merge with deterministic keywords (use this for AI-enhanced matching) |
+| `options.semanticConcepts` | `string[]` | — | Pre-computed AI-extracted concepts to merge with deterministic keywords |
+| `options.aiConceptExtractor` | `(jd: string) => Promise<string[]>` | — | Optional BYO-LLM hook for semantic concept extraction. Library calls this if `semanticConcepts` is not provided. |
+
+### BYO-LLM hook (optional)
+
+The library does NOT call any LLM. If you want semantic understanding:
+
+**Option 1: Pass the hook directly**
+```ts
+const result = await matchResumeToJD(resume, jd, {
+  aiConceptExtractor: async (jd) => {
+    const res = await openai.chat.completions.create({...});
+    return JSON.parse(res.choices[0].message.content);
+  },
+});
+```
+
+**Option 2: Pre-compute and pass concepts** (recommended for production, enables caching)
+```ts
+const concepts = await callMyLLM(jd);
+const result = await matchResumeToJD(resume, jd, { semanticConcepts: concepts });
+```
+
+If the hook throws or is unavailable, the library falls back to deterministic-only.
 
 ### Returns
 
