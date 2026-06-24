@@ -1,0 +1,64 @@
+{
+  "name": "@resumepolish/ats-scorer",
+  "version": "0.1.0",
+  "description": "A deterministic, transparent ATS resume scoring engine. 8 rules, no black box, no LLM. Includes resume-to-job-description matching with synonym-aware keyword extraction.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src test",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "release": "semantic-release",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "ats",
+    "resume",
+    "scorer",
+    "resume-scorer",
+    "ats-score",
+    "ats-checker",
+    "resume-matcher",
+    "job-description-matcher",
+    "ats-friendly",
+    "open-source"
+  ],
+  "homepage": "https://github.com/resumepolish/ats-scorer#readme",
+  "bugs": "https://github.com/resumepolish/ats-scorer/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/resumepolish/ats-scorer.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "semantic-release": "^23.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
