@@ -64,7 +64,7 @@ export function extractKeywords(text: string, options: KeywordOptions = {}): Key
  *
  * @example Basic (deterministic only)
  * ```ts
- * import { matchResumeToJD } from '@resumepolish/ats-scorer';
+ * import { matchResumeToJD } from '@abdullah1bit/job-scanner';
  * const result = await matchResumeToJD(resumeText, jd);
  * console.log(result.score); // 45
  * ```

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@resumepolish/ats-scorer",
+      "name": "@abdullah1bit/job-scanner",
       "devDependencies": {
         "@types/node": "^20.11.0",
         "@typescript-eslint/eslint-plugin": "^7.18.0",

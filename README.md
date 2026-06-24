@@ -1,9 +1,9 @@
-# @resumepolish/ats-scorer
+# @abdullah1bit/job-scanner
 
-[![npm version](https://img.shields.io/npm/v/@resumepolish/ats-scorer.svg)](https://www.npmjs.com/package/@resumepolish/ats-scorer)
+[![npm version](https://img.shields.io/npm/v/@abdullah1bit/job-scanner.svg)](https://www.npmjs.com/package/@abdullah1bit/job-scanner)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Build Status](https://github.com/resumepolish/ats-scorer/workflows/CI/badge.svg)](https://github.com/resumepolish/ats-scorer/actions)
-[![Downloads](https://img.shields.io/npm/dm/@resumepolish/ats-scorer.svg)](https://www.npmjs.com/package/@resumepolish/ats-scorer)
+[![Build Status](https://github.com/abdullah1bit/job-scanner/workflows/CI/badge.svg)](https://github.com/abdullah1bit/job-scanner/actions)
+[![Downloads](https://img.shields.io/npm/dm/@abdullah1bit/job-scanner.svg)](https://www.npmjs.com/package/@abdullah1bit/job-scanner)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 
 > A deterministic, transparent ATS resume scoring engine. 8 rules, no black box, no LLM. Includes resume-to-job-description matching with synonym-aware keyword extraction.
@@ -27,7 +27,7 @@ We believe the structural score should be free, public, and auditable. The AI re
 Paste a resume + a job description, get a match score showing which keywords/concepts from the JD are present in the resume and which are missing. Useful for tailoring a resume to a specific job.
 
 ```typescript
-import { scoreResume, matchResumeToJD } from '@resumepolish/ats-scorer';
+import { scoreResume, matchResumeToJD } from '@abdullah1bit/job-scanner';
 
 const atsResult = scoreResume(resumeText);
 const matchResult = await matchResumeToJD(resumeText, jobDescription);
@@ -43,7 +43,7 @@ The library is **deterministic by default** — no LLM calls, no API keys, works
 
 ```typescript
 import OpenAI from 'openai';
-import { matchResumeToJD } from '@resumepolish/ats-scorer';
+import { matchResumeToJD } from '@abdullah1bit/job-scanner';
 
 const openai = new OpenAI();
 
@@ -73,11 +73,11 @@ const result = await matchResumeToJD(resumeText, jd, {
 ## Quick start
 
 ```bash
-npm install @resumepolish/ats-scorer
+npm install @abdullah1bit/job-scanner
 ```
 
 ```typescript
-import { scoreResume, matchResumeToJD } from '@resumepolish/ats-scorer';
+import { scoreResume, matchResumeToJD } from '@abdullah1bit/job-scanner';
 
 const ats = scoreResume(resumeText);
 const match = await matchResumeToJD(resumeText, jdText);

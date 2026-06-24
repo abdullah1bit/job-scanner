@@ -109,7 +109,7 @@ The library does **not** call any LLM itself. There are two ways to provide sema
 
 ```ts
 import OpenAI from 'openai';
-import { matchResumeToJD } from '@resumepolish/ats-scorer';
+import { matchResumeToJD } from '@abdullah1bit/job-scanner';
 
 const openai = new OpenAI();
 

@@ -1,10 +1,10 @@
 # Default for all files
-* @resumepolish
+* @abdullah1bit
 
 # Require review for source code
-/src/ @resumepolish
+/src/ @abdullah1bit
 
 # Allow auto-merge for docs and CI
-/.github/ @resumepolish
-/docs/ @resumepolish
-/CHANGELOG.md @resumepolish
+/.github/ @abdullah1bit
+/docs/ @abdullah1bit
+/CHANGELOG.md @abdullah1bit

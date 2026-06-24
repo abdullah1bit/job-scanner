@@ -1,4 +1,4 @@
-import { scoreResume } from '@resumepolish/ats-scorer';
+import { scoreResume } from '@abdullah1bit/job-scanner';
 
 const sampleResume = `Paste your resume text here...`;
 

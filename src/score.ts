@@ -18,7 +18,7 @@ import { computeBand, computeOverall } from './constants/thresholds';
  *
  * @example
  * ```ts
- * import { scoreResume } from '@resumepolish/ats-scorer';
+ * import { scoreResume } from '@abdullah1bit/job-scanner';
  *
  * const result = scoreResume(resumeText);
  * console.log(result.overall); // 72

@@ -1,4 +1,4 @@
-# Contributing to @resumepolish/ats-scorer
+# Contributing to @abdullah1bit/job-scanner
 
 Thanks for considering a PR! This project aims to be small, focused, and well-tested.
 
@@ -67,7 +67,7 @@ All PRs must pass CI (lint + test + build).
 
 ## Reporting issues
 
-Please use the issue templates. For questions, use [GitHub Discussions](https://github.com/resumepolish/ats-scorer/discussions) — not issues.
+Please use the issue templates. For questions, use [GitHub Discussions](https://github.com/abdullah1bit/job-scanner/discussions) — not issues.
 
 ## Commit messages
 

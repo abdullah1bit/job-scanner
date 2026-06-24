@@ -1,5 +1,5 @@
 {
-  "name": "@resumepolish/ats-scorer",
+  "name": "@abdullah1bit/job-scanner",
   "version": "0.1.0",
   "description": "A deterministic, transparent ATS resume scoring engine. 8 rules, no black box, no LLM. Includes resume-to-job-description matching with synonym-aware keyword extraction.",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "ats",
     "resume",
     "scorer",
-    "resume-scorer",
+    "job-scanner",
     "ats-score",
     "ats-checker",
     "resume-matcher",
@@ -41,11 +41,11 @@
     "ats-friendly",
     "open-source"
   ],
-  "homepage": "https://github.com/resumepolish/ats-scorer#readme",
-  "bugs": "https://github.com/resumepolish/ats-scorer/issues",
+  "homepage": "https://github.com/abdullah1bit/job-scanner#readme",
+  "bugs": "https://github.com/abdullah1bit/job-scanner/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/resumepolish/ats-scorer.git"
+    "url": "https://github.com/abdullah1bit/job-scanner.git"
   },
   "engines": {
     "node": ">=18"

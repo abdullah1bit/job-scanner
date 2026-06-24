@@ -1,4 +1,4 @@
-import { scoreResume, matchResumeToJD } from '@resumepolish/ats-scorer';
+import { scoreResume, matchResumeToJD } from '@abdullah1bit/job-scanner';
 
 const resume = `
 Jane Smith
