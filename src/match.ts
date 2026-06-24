@@ -117,23 +117,39 @@ export async function matchResumeToJD(
 
   const keywords = extractKeywords(jobDescription, { maxKeywords: 20 });
 
-  // Resolve semantic concepts from either pre-computed value or the
-  // BYO-LLM hook. If both are provided, pre-computed wins (it's a cache hit).
+  // Resolve semantic concepts from either pre-computed value or a BYO-LLM
+  // hook. Pre-computed wins (it's a cache hit). The enhancer option takes
+  // precedence over the legacy aiConceptExtractor for richer integration.
   let semanticConcepts: string[] = options.semanticConcepts ?? [];
-  if (semanticConcepts.length === 0 && options.aiConceptExtractor) {
-    try {
-      semanticConcepts = await options.aiConceptExtractor(jobDescription);
-    } catch {
-      // AI extraction failed — fall back to deterministic only
-      semanticConcepts = [];
+  if (semanticConcepts.length === 0) {
+    if (options.enhancer) {
+      try {
+        const enhancer = options.enhancer;
+        const extracted = await enhancer.extractConcepts(jobDescription);
+        // Apply the enhancer's optional validator (filter junk concepts)
+        semanticConcepts = enhancer.validateConcept
+          ? extracted.filter((c: string) => enhancer.validateConcept!(c))
+          : extracted;
+      } catch {
+        semanticConcepts = [];
+      }
+    } else if (options.aiConceptExtractor) {
+      try {
+        semanticConcepts = await options.aiConceptExtractor(jobDescription);
+      } catch {
+        semanticConcepts = [];
+      }
     }
   }
 
-  const semanticKeywords = semanticConcepts.map((c) => ({
-    keyword: c.toLowerCase().trim(),
-    weight: 5,
-    category: 'other' as const,
-  }));
+  const semanticKeywords = semanticConcepts
+    .map((c) => c.toLowerCase().trim())
+    .filter((c) => c.length > 0)
+    .map((keyword) => ({
+      keyword,
+      weight: 5,
+      category: 'other' as const,
+    }));
   const allKeywords = [...keywords, ...semanticKeywords];
 
   const resumeLower = resumeText.toLowerCase();

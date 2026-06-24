@@ -2,6 +2,10 @@
 // Public types
 // ---------------------------------------------------------------------------
 
+import type { MatchEnhancer } from './ai/extract-concepts';
+
+export type { MatchEnhancer };
+
 export type ScoreStatus = 'good' | 'needs_work' | 'critical';
 export type ScoreBand = 'ats_ready' | 'minor_fixes' | 'major_fixes' | 'critical_issues';
 
@@ -100,6 +104,14 @@ export interface MatchOptions {
    * ```
    */
   aiConceptExtractor?: (jobDescription: string) => Promise<string[]>;
+  /**
+   * Optional structured enhancer (preferred over `aiConceptExtractor`).
+   * Provides `extractConcepts` + optional `validateConcept` for filtering.
+   *
+   * The library's `matchResumeToJD` function will call this for semantic
+   * concept extraction when no pre-computed `semanticConcepts` are provided.
+   */
+  enhancer?: MatchEnhancer;
 }
 
 // ---------------------------------------------------------------------------
